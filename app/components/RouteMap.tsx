@@ -3,7 +3,7 @@
 const schools = {
   UIUC: {
     name: 'University of Illinois Urbana-Champaign',
-    logo: '/logos/uiuc-logo.png',
+    logo: '/logos/UIUC-logo.png',
   },
   IU: {
     name: 'Indiana University Bloomington',
