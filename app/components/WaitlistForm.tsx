@@ -1,0 +1,192 @@
+'use client'
+
+import { useState } from 'react'
+
+export default function WaitlistForm() {
+  const [email, setEmail] = useState('')
+  const [school, setSchool] = useState('')
+  const [destination, setDestination] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  // Get available destinations based on selected school
+  const getAvailableDestinations = () => {
+    if (!school) return []
+    const allSchools = [
+      { value: 'uiuc', label: 'University of Illinois Urbana-Champaign (UIUC)' },
+      { value: 'iu', label: 'Indiana University Bloomington (IU)' },
+      { value: 'purdue', label: 'Purdue University' },
+    ]
+    return allSchools.filter(s => s.value !== school)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMessage('')
+
+    if (!email) {
+      setErrorMessage('Please enter your email address')
+      setStatus('error')
+      return
+    }
+
+    if (!validateEmail(email)) {
+      setErrorMessage('Please enter a valid email address')
+      setStatus('error')
+      return
+    }
+
+    if (!school) {
+      setErrorMessage('Please select your school')
+      setStatus('error')
+      return
+    }
+
+    if (!destination) {
+      setErrorMessage('Please select your desired destination')
+      setStatus('error')
+      return
+    }
+
+    setStatus('loading')
+
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, school, destination }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrorMessage(data.error || 'Failed to join waitlist. Please try again.')
+        setStatus('error')
+        return
+      }
+
+      setStatus('success')
+      setEmail('')
+      setSchool('')
+      setDestination('')
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        setStatus('idle')
+      }, 5000)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setErrorMessage('Something went wrong. Please try again later.')
+      setStatus('error')
+    }
+  }
+
+  return (
+    <section id="waitlist-form" className="py-16 md:py-24 bg-white">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Join the Waitlist
+          </h2>
+          <p className="text-lg text-gray-600">
+            Be among the first to know when Campus Connect launches. Help us gauge interest and shape the service!
+          </p>
+        </div>
+
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 md:p-10 shadow-lg border border-blue-200">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your.email@university.edu"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900"
+                disabled={status === 'loading'}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="school" className="block text-sm font-semibold text-gray-700 mb-2">
+                Your School
+              </label>
+              <select
+                id="school"
+                value={school}
+                onChange={(e) => {
+                  setSchool(e.target.value)
+                  setDestination('') // Reset destination when school changes
+                }}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900 bg-white"
+                disabled={status === 'loading'}
+              >
+                <option value="">Select your school</option>
+                <option value="uiuc">University of Illinois Urbana-Champaign (UIUC)</option>
+                <option value="iu">Indiana University Bloomington (IU)</option>
+                <option value="purdue">Purdue University</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="destination" className="block text-sm font-semibold text-gray-700 mb-2">
+                Desired Destination
+              </label>
+              <select
+                id="destination"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900 bg-white"
+                disabled={status === 'loading' || !school}
+              >
+                <option value="">
+                  {school ? 'Select your desired destination' : 'Select your school first'}
+                </option>
+                {getAvailableDestinations().map((dest) => (
+                  <option key={dest.value} value={dest.value}>
+                    {dest.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {errorMessage && status === 'error' && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {errorMessage}
+              </div>
+            )}
+
+            {status === 'success' && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                <p className="font-semibold">Thanks for joining! 🎉</p>
+                <p className="text-sm mt-1">We'll keep you updated as we launch Campus Connect.</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === 'loading' || status === 'success'}
+              className="w-full bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            >
+              {status === 'loading' ? 'Joining...' : status === 'success' ? 'Joined!' : 'Join Waitlist'}
+            </button>
+          </form>
+
+          <p className="mt-6 text-sm text-gray-600 text-center">
+            By joining, you agree to receive updates about Campus Connect. We'll never spam you or share your information.
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
