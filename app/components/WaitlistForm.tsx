@@ -67,6 +67,7 @@ export default function WaitlistForm() {
       const data = await response.json()
 
       if (!response.ok) {
+        console.error('API Error:', data)
         setErrorMessage(data.error || 'Failed to join waitlist. Please try again.')
         setStatus('error')
         return

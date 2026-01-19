@@ -1,25 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { kv } from '@vercel/kv'
+import { createClient } from 'redis'
 
 const WAITLIST_KEY = 'waitlist:entries'
 
-// Get all entries from KV
+// Create Redis client
+let redisClient: ReturnType<typeof createClient> | null = null
+
+async function getRedisClient() {
+  if (!redisClient) {
+    const url = process.env.REDIS_URL
+    if (!url) {
+      throw new Error('REDIS_URL environment variable is not set')
+    }
+    redisClient = createClient({ url })
+    await redisClient.connect()
+  }
+  return redisClient
+}
+
+// Get all entries from Redis
 async function getEntries() {
   try {
-    const entries = await kv.get<any[]>(WAITLIST_KEY)
-    return entries || []
+    const client = await getRedisClient()
+    const data = await client.get(WAITLIST_KEY)
+    if (!data) return []
+    return JSON.parse(data)
   } catch (error) {
-    console.error('Error reading from KV:', error)
+    console.error('Error reading from Redis:', error)
     return []
   }
 }
 
-// Save entries to KV
+// Save entries to Redis
 async function saveEntries(entries: any[]) {
   try {
-    await kv.set(WAITLIST_KEY, entries)
+    const client = await getRedisClient()
+    await client.set(WAITLIST_KEY, JSON.stringify(entries))
   } catch (error) {
-    console.error('Error writing to KV:', error)
+    console.error('Error writing to Redis:', error)
     throw error
   }
 }
@@ -93,8 +111,9 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error('Error adding to waitlist:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to add to waitlist' },
+      { error: `Failed to add to waitlist: ${errorMessage}` },
       { status: 500 }
     )
   }
