@@ -1,37 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { promises as fs } from 'fs'
-import path from 'path'
+import { kv } from '@vercel/kv'
 
-const DATA_DIR = path.join(process.cwd(), 'data')
-const WAITLIST_FILE = path.join(DATA_DIR, 'waitlist.json')
+const WAITLIST_KEY = 'waitlist:entries'
 
-// Ensure data directory exists
-async function ensureDataDir() {
+// Get all entries from KV
+async function getEntries() {
   try {
-    await fs.access(DATA_DIR)
-  } catch {
-    await fs.mkdir(DATA_DIR, { recursive: true })
+    const entries = await kv.get<any[]>(WAITLIST_KEY)
+    return entries || []
+  } catch (error) {
+    console.error('Error reading from KV:', error)
+    return []
   }
 }
 
-// Initialize waitlist file if it doesn't exist
-async function initWaitlistFile() {
+// Save entries to KV
+async function saveEntries(entries: any[]) {
   try {
-    await fs.access(WAITLIST_FILE)
-  } catch {
-    await fs.writeFile(WAITLIST_FILE, JSON.stringify([], null, 2))
+    await kv.set(WAITLIST_KEY, entries)
+  } catch (error) {
+    console.error('Error writing to KV:', error)
+    throw error
   }
 }
 
 // GET - Retrieve all waitlist entries
 export async function GET() {
   try {
-    await ensureDataDir()
-    await initWaitlistFile()
-    
-    const fileContents = await fs.readFile(WAITLIST_FILE, 'utf8')
-    const entries = JSON.parse(fileContents)
-    
+    const entries = await getEntries()
     return NextResponse.json({ entries }, { status: 200 })
   } catch (error) {
     console.error('Error reading waitlist:', error)
@@ -45,9 +41,6 @@ export async function GET() {
 // POST - Add a new waitlist entry
 export async function POST(request: NextRequest) {
   try {
-    await ensureDataDir()
-    await initWaitlistFile()
-
     const body = await request.json()
     const { email, school, destination } = body
 
@@ -69,8 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Read existing entries
-    const fileContents = await fs.readFile(WAITLIST_FILE, 'utf8')
-    const entries = JSON.parse(fileContents)
+    const entries = await getEntries()
 
     // Check if email already exists
     const existingEntry = entries.find((entry: any) => entry.email.toLowerCase() === email.toLowerCase())
@@ -92,8 +84,8 @@ export async function POST(request: NextRequest) {
 
     entries.push(newEntry)
 
-    // Write back to file
-    await fs.writeFile(WAITLIST_FILE, JSON.stringify(entries, null, 2))
+    // Save to KV
+    await saveEntries(entries)
 
     return NextResponse.json(
       { message: 'Successfully added to waitlist', entry: newEntry },
@@ -111,21 +103,17 @@ export async function POST(request: NextRequest) {
 // DELETE - Delete a specific entry or clear all entries
 export async function DELETE(request: NextRequest) {
   try {
-    await ensureDataDir()
-    await initWaitlistFile()
-
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     const clearAll = searchParams.get('clearAll') === 'true'
 
     // Read existing entries
-    const fileContents = await fs.readFile(WAITLIST_FILE, 'utf8')
-    let entries = JSON.parse(fileContents)
+    let entries = await getEntries()
 
     if (clearAll) {
       // Clear all entries
       entries = []
-      await fs.writeFile(WAITLIST_FILE, JSON.stringify([], null, 2))
+      await saveEntries(entries)
       return NextResponse.json(
         { message: 'All entries cleared successfully' },
         { status: 200 }
@@ -142,7 +130,7 @@ export async function DELETE(request: NextRequest) {
         )
       }
 
-      await fs.writeFile(WAITLIST_FILE, JSON.stringify(entries, null, 2))
+      await saveEntries(entries)
       return NextResponse.json(
         { message: 'Entry deleted successfully' },
         { status: 200 }
