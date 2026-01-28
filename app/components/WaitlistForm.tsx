@@ -90,18 +90,18 @@ export default function WaitlistForm() {
   }
 
   return (
-    <section id="waitlist-form" className="py-8 md:py-12 bg-slate-900">
+    <section id="waitlist-form" className="py-8 md:py-12 bg-gradient-to-br from-blue-50 via-blue-100 to-slate-100">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Join the Waitlist
           </h2>
-          <p className="text-lg text-gray-300">
+          <p className="text-lg text-gray-700">
             Be among the first to know when UniLink launches. Help us gauge interest and shape the service!
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl p-8 md:p-10 shadow-xl border border-gray-200">
+        <div className="bg-white rounded-2xl p-8 md:p-10 shadow-xl border border-blue-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
