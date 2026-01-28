@@ -1,0 +1,7 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Two connected nodes representing university links -->
+  <circle cx="25" cy="40" r="12" fill="#2563EB"/>
+  <circle cx="55" cy="40" r="12" fill="#2563EB"/>
+  <!-- Connection line -->
+  <line x1="37" y1="40" x2="43" y2="40" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+</svg>

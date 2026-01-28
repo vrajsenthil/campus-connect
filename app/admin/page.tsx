@@ -87,12 +87,22 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Waitlist Admin
-          </h1>
-          <p className="text-lg text-gray-600">
-            View all waitlist signups for Campus Connect
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                Waitlist Admin
+              </h1>
+              <p className="text-lg text-gray-600">
+                View all waitlist signups for UniLink
+              </p>
+            </div>
+            <a
+              href="/admin/bookings"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+            >
+              View Bookings →
+            </a>
+          </div>
         </div>
 
         {error && (

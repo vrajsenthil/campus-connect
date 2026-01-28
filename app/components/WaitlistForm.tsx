@@ -90,18 +90,18 @@ export default function WaitlistForm() {
   }
 
   return (
-    <section id="waitlist-form" className="py-16 md:py-24 bg-white">
+    <section id="waitlist-form" className="py-8 md:py-12 bg-slate-900">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Join the Waitlist
           </h2>
-          <p className="text-lg text-gray-600">
-            Be among the first to know when Campus Connect launches. Help us gauge interest and shape the service!
+          <p className="text-lg text-gray-300">
+            Be among the first to know when UniLink launches. Help us gauge interest and shape the service!
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 md:p-10 shadow-lg border border-blue-200">
+        <div className="bg-white rounded-2xl p-8 md:p-10 shadow-xl border border-gray-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -113,7 +113,7 @@ export default function WaitlistForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your.email@university.edu"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 disabled={status === 'loading'}
               />
             </div>
@@ -129,7 +129,7 @@ export default function WaitlistForm() {
                   setSchool(e.target.value)
                   setDestination('') // Reset destination when school changes
                 }}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900 bg-white"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 disabled={status === 'loading'}
               >
                 <option value="">Select your school</option>
@@ -147,7 +147,7 @@ export default function WaitlistForm() {
                 id="destination"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900 bg-white"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 disabled={status === 'loading' || !school}
               >
                 <option value="">
@@ -169,22 +169,22 @@ export default function WaitlistForm() {
 
             {status === 'success' && (
               <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-                <p className="font-semibold">Thanks for joining! 🎉</p>
-                <p className="text-sm mt-1">We'll keep you updated as we launch Campus Connect.</p>
+                <p className="font-semibold">Thanks for joining!</p>
+                <p className="text-sm mt-1">We'll keep you updated as we launch UniLink.</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={status === 'loading' || status === 'success'}
-              className="w-full bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+              className="w-full bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
             >
               {status === 'loading' ? 'Joining...' : status === 'success' ? 'Joined!' : 'Join Waitlist'}
             </button>
           </form>
 
           <p className="mt-6 text-sm text-gray-600 text-center">
-            By joining, you agree to receive updates about Campus Connect. We'll never spam you or share your information.
+            By joining, you agree to receive updates about UniLink. We'll never spam you or share your information.
           </p>
         </div>
       </div>

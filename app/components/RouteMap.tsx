@@ -23,9 +23,9 @@ export default function RouteMap() {
   ]
 
   return (
-    <section id="route-map" className="py-16 md:py-24 bg-white">
+    <section id="route-map" className="py-8 md:py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Our Routes
           </h2>
@@ -43,16 +43,16 @@ export default function RouteMap() {
             return (
               <div
                 key={index}
-                className="bg-blue-50 p-6 rounded-lg border border-blue-200 hover:shadow-lg transition-shadow"
+                className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-shadow"
               >
                 {/* School Logos */}
-                <div className="flex items-center justify-center gap-6 mb-4">
+                <div className="flex items-center justify-center gap-4 mb-4">
                   {/* From School Logo */}
-                  <div className="flex items-center justify-center w-20 h-20">
+                  <div className="flex items-center justify-center w-16 h-16 bg-gray-50 rounded-xl p-2 border border-gray-100">
                     <img
                       src={fromSchool.logo}
                       alt={`${fromSchool.name} logo`}
-                      className={`object-contain ${route.from === 'UIUC' ? 'w-12 h-12' : 'w-20 h-20'}`}
+                      className={`object-contain ${route.from === 'UIUC' ? 'w-10 h-10' : 'w-14 h-14'}`}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'
@@ -60,15 +60,14 @@ export default function RouteMap() {
                     />
                   </div>
                   
-                  {/* Arrow */}
-                  <div className="flex items-center justify-center text-2xl text-gray-400 h-20">↔</div>
+                  <span className="text-gray-400">→</span>
                   
                   {/* To School Logo */}
-                  <div className="flex items-center justify-center w-20 h-20">
+                  <div className="flex items-center justify-center w-16 h-16 bg-gray-50 rounded-xl p-2 border border-gray-100">
                     <img
                       src={toSchool.logo}
                       alt={`${toSchool.name} logo`}
-                      className={`object-contain ${route.to === 'UIUC' ? 'w-12 h-12' : 'w-20 h-20'}`}
+                      className={`object-contain ${route.to === 'UIUC' ? 'w-10 h-10' : 'w-14 h-14'}`}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'

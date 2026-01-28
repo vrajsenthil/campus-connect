@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 
 export default function Hero() {
   const handleScrollToForm = () => {
@@ -7,24 +8,32 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20 md:py-32">
-      <div className="absolute inset-0 bg-black opacity-10"></div>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative bg-slate-900 text-white py-12 md:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Campus Connect
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/logo.svg"
+              alt="UniLink Logo"
+              width={80}
+              height={80}
+              className="w-16 h-16 md:w-20 md:h-20"
+            />
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight text-white">
+            UniLink
           </h1>
-          <h2 className="text-2xl md:text-4xl font-semibold mb-4 text-blue-100">
+          <h2 className="text-2xl md:text-4xl font-semibold mb-4 text-gray-200">
             Budget-Friendly & Student-Focused
           </h2>
-          <p className="text-xl md:text-2xl mb-8 text-blue-50 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl mb-10 text-gray-300 max-w-3xl mx-auto leading-relaxed">
             Connect with friends across college campuses. Affordable bus service connecting 
-            <span className="font-semibold"> UIUC, IU, and Purdue</span> for students like you.
+            <span className="font-semibold text-white"> UIUC, IU, and Purdue</span> for students like you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
               onClick={handleScrollToForm}
-              className="bg-white text-blue-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
             >
               Join the Waitlist
             </button>
@@ -33,7 +42,7 @@ export default function Hero() {
                 const mapSection = document.getElementById('route-map')
                 mapSection?.scrollIntoView({ behavior: 'smooth' })
               }}
-              className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-blue-700 transition-colors"
+              className="px-8 py-4 bg-white/10 text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-colors"
             >
               See Routes
             </button>
