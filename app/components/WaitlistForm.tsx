@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 export default function WaitlistForm() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [school, setSchool] = useState('')
   const [destination, setDestination] = useState('')
@@ -29,6 +30,12 @@ export default function WaitlistForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage('')
+
+    if (!name || !name.trim()) {
+      setErrorMessage('Please enter your full name')
+      setStatus('error')
+      return
+    }
 
     if (!email) {
       setErrorMessage('Please enter your email address')
@@ -63,6 +70,7 @@ export default function WaitlistForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
+          name: name.trim(),
           email, 
           school, 
           destination,
@@ -80,6 +88,7 @@ export default function WaitlistForm() {
       }
 
       setStatus('success')
+      setName('')
       setEmail('')
       setSchool('')
       setDestination('')
@@ -128,6 +137,22 @@ export default function WaitlistForm() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
+              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                disabled={status === 'loading'}
+                required
+              />
+            </div>
+
+            <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
               </label>
@@ -139,6 +164,7 @@ export default function WaitlistForm() {
                 placeholder="your.email@university.edu"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 disabled={status === 'loading'}
+                required
               />
             </div>
 
@@ -155,6 +181,7 @@ export default function WaitlistForm() {
                 }}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 disabled={status === 'loading'}
+                required
               >
                 <option value="">Select your school</option>
                 <option value="uiuc">University of Illinois Urbana-Champaign (UIUC)</option>
@@ -173,6 +200,7 @@ export default function WaitlistForm() {
                 onChange={(e) => setDestination(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 disabled={status === 'loading' || !school}
+                required
               >
                 <option value="">
                   {school ? 'Select your desired destination' : 'Select your school first'}

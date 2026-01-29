@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 
 interface WaitlistEntry {
   id: string
+  name?: string
   email: string
   school: string
   destination?: string
@@ -218,6 +219,9 @@ export default function AdminPage() {
                       #
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Email
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -242,6 +246,9 @@ export default function AdminPage() {
                     <tr key={entry.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {index + 1}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {entry.name || '—'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {entry.email}
@@ -300,8 +307,9 @@ export default function AdminPage() {
             <button
               onClick={() => {
                 const csv = [
-                  ['Email', 'School', 'Destination', 'Referred By', 'Signed Up'],
+                  ['Name', 'Email', 'School', 'Destination', 'Referred By', 'Signed Up'],
                   ...entries.map(entry => [
+                    entry.name || 'N/A',
                     entry.email,
                     getSchoolDisplayName(entry.school),
                     entry.destination ? getDestinationDisplayName(entry.destination) : 'N/A',

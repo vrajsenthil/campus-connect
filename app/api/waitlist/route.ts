@@ -61,9 +61,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, school, destination, referrerName } = body
+    const { name, email, school, destination, referrerName } = body
 
     // Validate input
+    if (!name || !name.trim()) {
+      return NextResponse.json(
+        { error: 'Full name is required' },
+        { status: 400 }
+      )
+    }
+
     if (!email || !school || !destination) {
       return NextResponse.json(
         { error: 'Email, school, and destination are required' },
@@ -95,6 +102,7 @@ export async function POST(request: NextRequest) {
     // Add new entry
     const newEntry = {
       id: Date.now().toString(),
+      name: name.trim(),
       email: email.toLowerCase(),
       school,
       destination,
