@@ -6,6 +6,7 @@ export default function WaitlistForm() {
   const [email, setEmail] = useState('')
   const [school, setSchool] = useState('')
   const [destination, setDestination] = useState('')
+  const [referrerName, setReferrerName] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -61,7 +62,12 @@ export default function WaitlistForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, school, destination }),
+        body: JSON.stringify({ 
+          email, 
+          school, 
+          destination,
+          referrerName: referrerName.trim() || undefined 
+        }),
       })
 
       const data = await response.json()
@@ -77,6 +83,7 @@ export default function WaitlistForm() {
       setEmail('')
       setSchool('')
       setDestination('')
+      setReferrerName('')
       
       // Reset success message after 5 seconds
       setTimeout(() => {
@@ -102,6 +109,23 @@ export default function WaitlistForm() {
         </div>
 
         <div className="bg-white rounded-2xl p-8 md:p-10 shadow-xl border border-blue-200">
+          {/* Referral Contest Banner */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-yellow-900 mb-1">Referral Contest!</p>
+                <p className="text-sm text-yellow-800">
+                  The <strong>top 3 users</strong> with the most referrals will receive <strong>free tickets</strong> when we launch!
+                </p>
+              </div>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -159,6 +183,24 @@ export default function WaitlistForm() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label htmlFor="referrerName" className="block text-sm font-semibold text-gray-700 mb-2">
+                Referred By <span className="text-gray-500 font-normal">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                id="referrerName"
+                value={referrerName}
+                onChange={(e) => setReferrerName(e.target.value)}
+                placeholder="Enter referrer's full name"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                disabled={status === 'loading'}
+              />
+              <p className="mt-2 text-xs text-gray-500">
+                Enter the <strong>full name</strong> of the person who referred you. Top 3 referrers get free tickets!
+              </p>
             </div>
 
             {errorMessage && status === 'error' && (

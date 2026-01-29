@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'redis'
+import { sendWelcomeEmail } from '@/lib/email'
 
 const WAITLIST_KEY = 'waitlist:entries'
 
@@ -60,7 +61,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, school, destination } = body
+    const { email, school, destination, referrerName } = body
 
     // Validate input
     if (!email || !school || !destination) {
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
       email: email.toLowerCase(),
       school,
       destination,
+      referrerName: referrerName?.trim() || null,
       createdAt: new Date().toISOString(),
     }
 
@@ -104,6 +106,15 @@ export async function POST(request: NextRequest) {
 
     // Save to KV
     await saveEntries(entries)
+
+    // Send welcome email (don't block on email errors)
+    try {
+      await sendWelcomeEmail(email, school, destination)
+      console.log(`Welcome email sent to ${email}`)
+    } catch (emailError) {
+      // Log error but don't fail the request
+      console.error('Failed to send welcome email:', emailError)
+    }
 
     return NextResponse.json(
       { message: 'Successfully added to waitlist', entry: newEntry },

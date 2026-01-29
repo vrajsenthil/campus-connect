@@ -7,6 +7,7 @@ interface WaitlistEntry {
   email: string
   school: string
   destination?: string
+  referrerName?: string | null
   createdAt: string
 }
 
@@ -67,10 +68,26 @@ export default function AdminPage() {
     })
   }
 
+  // Calculate statistics
   const schoolCounts = entries.reduce((acc, entry) => {
     acc[entry.school] = (acc[entry.school] || 0) + 1
     return acc
   }, {} as { [key: string]: number })
+
+  // Calculate referral counts
+  const referralCounts = entries.reduce((acc, entry) => {
+    if (entry.referrerName) {
+      const name = entry.referrerName.trim()
+      acc[name] = (acc[name] || 0) + 1
+    }
+    return acc
+  }, {} as { [key: string]: number })
+
+  // Get top 3 referrers
+  const topReferrers = Object.entries(referralCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([name, count]) => ({ name, count }))
 
   if (loading) {
     return (
@@ -131,6 +148,26 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Top Referrers */}
+        {topReferrers.length > 0 && (
+          <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-6 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">🏆 Top 3 Referrers (Free Ticket Winners!)</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {topReferrers.map((referrer, index) => (
+                <div key={referrer.name} className="bg-white rounded-lg p-4 border border-yellow-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl font-bold text-yellow-600">#{index + 1}</span>
+                    <span className="text-lg font-semibold text-gray-900">{referrer.name}</span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {referrer.count} {referrer.count === 1 ? 'referral' : 'referrals'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="mb-4 flex gap-3 flex-wrap">
           <button
@@ -190,6 +227,9 @@ export default function AdminPage() {
                       Destination
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Referred By
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Signed Up
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -211,6 +251,13 @@ export default function AdminPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {entry.destination ? getDestinationDisplayName(entry.destination) : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {entry.referrerName ? (
+                          <span className="font-medium text-blue-600">{entry.referrerName}</span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(entry.createdAt)}
@@ -253,11 +300,12 @@ export default function AdminPage() {
             <button
               onClick={() => {
                 const csv = [
-                  ['Email', 'School', 'Destination', 'Signed Up'],
+                  ['Email', 'School', 'Destination', 'Referred By', 'Signed Up'],
                   ...entries.map(entry => [
                     entry.email,
                     getSchoolDisplayName(entry.school),
                     entry.destination ? getDestinationDisplayName(entry.destination) : 'N/A',
+                    entry.referrerName || 'N/A',
                     formatDate(entry.createdAt),
                   ]),
                 ]
