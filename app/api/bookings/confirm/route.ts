@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { createClient } from 'redis'
 
 const BOOKINGS_KEY = 'bookings:entries'
+const TICKET_LIMIT = 55
 let redisClient: ReturnType<typeof createClient> | null = null
 
 async function getRedisClient() {
@@ -82,6 +83,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { message: 'Booking already confirmed', booking: existingBySession },
         { status: 200 }
+      )
+    }
+
+    if (bookings.length >= TICKET_LIMIT) {
+      return NextResponse.json(
+        {
+          error: `Sold out. All ${TICKET_LIMIT} tickets have been sold. Please contact support for a refund.`,
+        },
+        { status: 400 }
       )
     }
 

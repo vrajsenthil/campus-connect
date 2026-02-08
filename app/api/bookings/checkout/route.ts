@@ -25,8 +25,24 @@ function isWithinLastMinuteWindow(): boolean {
   return daysUntil >= 1 && daysUntil <= LAST_MINUTE_DAYS
 }
 
+const TICKET_LIMIT = 55
+
 export async function POST(request: NextRequest) {
   try {
+    const origin = request.headers.get('origin') || request.nextUrl?.origin || ''
+    try {
+      const capacityRes = await fetch(`${origin}/api/bookings/capacity`)
+      const capacity = capacityRes.ok ? await capacityRes.json() : { soldOut: false }
+      if (capacity.soldOut) {
+        return NextResponse.json(
+          { error: `Sold out. All ${TICKET_LIMIT} tickets have been sold.` },
+          { status: 400 }
+        )
+      }
+    } catch (_) {
+      // If capacity check fails, allow booking (e.g. Redis down)
+    }
+
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim()
     if (!stripeSecretKey) {
       return NextResponse.json(

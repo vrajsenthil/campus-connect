@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const TRIP_DEPARTURE = 'March 6, 2025 at 6:00 PM'
@@ -27,6 +27,8 @@ function isWithinLastMinuteWindow(): boolean {
 
 type TripType = 'one-way' | 'round-trip' | 'return-only'
 
+const TICKET_LIMIT = 55
+
 export default function BookingPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -37,6 +39,16 @@ export default function BookingPage() {
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [soldOut, setSoldOut] = useState(false)
+  const [capacityLoading, setCapacityLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/bookings/capacity')
+      .then((res) => res.json())
+      .then((data) => setSoldOut(data.soldOut === true))
+      .catch(() => setSoldOut(false))
+      .finally(() => setCapacityLoading(false))
+  }, [])
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   const lastMinute = isWithinLastMinuteWindow()
@@ -94,6 +106,9 @@ export default function BookingPage() {
       if (!res.ok) {
         setErrorMessage(data.error || 'Failed to start checkout. Please try again.')
         setStatus('error')
+        if (data.error && data.error.includes('Sold out')) {
+          setSoldOut(true)
+        }
         return
       }
 
@@ -127,6 +142,25 @@ export default function BookingPage() {
             March 6, 6:00 PM – March 8, 6:00 PM. Arrive at least 10 minutes before 6:00 PM departure.
           </p>
 
+          {capacityLoading ? (
+            <div className="py-12 text-center text-gray-500">
+              Checking availability…
+            </div>
+          ) : soldOut ? (
+            <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-8 text-center">
+              <h2 className="text-2xl font-bold text-amber-900 mb-2">Sold Out</h2>
+              <p className="text-amber-800 mb-4">
+                All {TICKET_LIMIT} tickets have been sold. This trip is sold out and we are not accepting any more bookings.
+              </p>
+              <Link
+                href="/"
+                className="inline-block bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
+              >
+                Back to UniLink
+              </Link>
+            </div>
+          ) : (
+          <>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -330,10 +364,11 @@ export default function BookingPage() {
               {status === 'loading' ? 'Redirecting to payment...' : 'Book Now'}
             </button>
           </form>
-
           <p className="mt-6 text-sm text-gray-500 text-center">
             You will be redirected to our secure payment provider to complete your booking.
           </p>
+          </>
+          )}
         </div>
       </div>
     </div>
