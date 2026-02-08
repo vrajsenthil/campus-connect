@@ -13,7 +13,7 @@ const LAST_MINUTE_FEE = 5
 const LAST_MINUTE_DAYS = 5
 
 const ROUTE_VALUE = 'purdue-uiuc' as const
-const ROUTE_LABEL = 'Purdue → UIUC'
+const ROUTE_LABEL_TWO_WAY = 'Purdue ↔ UIUC'
 
 function isWithinLastMinuteWindow(): boolean {
   const now = new Date()
@@ -177,7 +177,7 @@ export default function BookingPage() {
 
             <div className="rounded-xl border-2 border-slate-200 bg-slate-50 p-4">
               <div className="text-sm font-semibold text-gray-600 mb-1">Route</div>
-              <div className="text-lg font-bold text-gray-900">{ROUTE_LABEL}</div>
+              <div className="text-lg font-bold text-gray-900">{ROUTE_LABEL_TWO_WAY}</div>
               <p className="mt-1 text-sm text-gray-600">
                 {tripType === 'round-trip'
                   ? 'Depart March 6, 6:00 PM; return March 8, 6:00 PM. $30 × 2'
@@ -258,14 +258,15 @@ export default function BookingPage() {
             </div>
 
             <div className="border-t border-gray-200 pt-4 space-y-2">
-              <div className="flex justify-between text-gray-700">
-                <span>
-                  Purdue → UIUC{' '}
-                  {tripType === 'round-trip'
-                    ? 'round trip'
-                    : tripType === 'return-only'
-                      ? 'return only'
-                      : 'one-way'}
+              <div className="flex justify-between items-center text-gray-700">
+                <span className="flex items-center gap-2">
+                  {tripType === 'return-only' ? (
+                    <>UIUC → Purdue <span className="text-gray-500 font-medium">return only</span></>
+                  ) : tripType === 'one-way' ? (
+                    <>Purdue → UIUC <span className="text-gray-500 font-medium">one-way</span></>
+                  ) : (
+                    <>Purdue ↔ UIUC <span className="text-gray-500 font-medium">round trip</span></>
+                  )}
                 </span>
                 <span>{tripType === 'round-trip' ? '$30 × 2' : '$30.00'}</span>
               </div>
