@@ -5,9 +5,18 @@ import Link from 'next/link'
 
 interface Booking {
   id: string
+  name?: string
   email: string
-  homeLocation: string
-  destination: string
+  homeLocation?: string
+  destination?: string
+  route?: string
+  roundTrip?: boolean
+  lastMinuteFee?: boolean
+  referrerName?: string | null
+  addLuggage?: boolean
+  tripDeparture?: string
+  tripReturn?: string
+  amountTotal?: number
   status: string
   createdAt: string
 }
@@ -61,28 +70,28 @@ export default function BookingsAdminPage() {
     })
   }
 
+  const getBookingRoute = (booking: Booking) =>
+    booking.route || (booking.homeLocation && booking.destination ? `${booking.homeLocation}-${booking.destination}` : '')
+
   // Get all available routes from bookings
   const getAllRoutes = () => {
     const routes = new Set<string>()
     bookings.forEach(booking => {
-      const route = `${booking.homeLocation}-${booking.destination}`
-      routes.add(route)
+      const r = getBookingRoute(booking)
+      if (r) routes.add(r)
     })
     return Array.from(routes).sort()
   }
 
   // Filter bookings by selected route
-  const filteredBookings = selectedRoute === 'all' 
-    ? bookings 
-    : bookings.filter(booking => {
-        const route = `${booking.homeLocation}-${booking.destination}`
-        return route === selectedRoute
-      })
+  const filteredBookings = selectedRoute === 'all'
+    ? bookings
+    : bookings.filter(booking => getBookingRoute(booking) === selectedRoute)
 
   // Count bookings by route (using filtered bookings for stats)
   const routeCounts = filteredBookings.reduce((acc, booking) => {
-    const route = `${booking.homeLocation}-${booking.destination}`
-    acc[route] = (acc[route] || 0) + 1
+    const r = getBookingRoute(booking)
+    if (r) acc[r] = (acc[r] || 0) + 1
     return acc
   }, {} as { [key: string]: number })
 
@@ -257,10 +266,25 @@ export default function BookingsAdminPage() {
                       #
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Email
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Route
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Round Trip
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Last Min.
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Referred By
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Luggage
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
@@ -280,12 +304,40 @@ export default function BookingsAdminPage() {
                         {index + 1}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {booking.name || '—'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {booking.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span className="font-semibold">{getSchoolDisplayName(booking.homeLocation)}</span>
-                        {' → '}
-                        <span className="font-semibold">{getSchoolDisplayName(booking.destination)}</span>
+                        {(() => {
+                          const r = getBookingRoute(booking)
+                          if (!r) return '—'
+                          const [from, to] = r.split('-')
+                          return (
+                            <>
+                              <span className="font-semibold">{getSchoolDisplayName(from)}</span>
+                              {' → '}
+                              <span className="font-semibold">{getSchoolDisplayName(to)}</span>
+                            </>
+                          )
+                        })()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.roundTrip ? 'Yes' : 'No'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.lastMinuteFee ? 'Yes' : 'No'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.referrerName ? (
+                          <span className="font-medium text-blue-600">{booking.referrerName}</span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.addLuggage ? 'Yes' : 'No'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -339,14 +391,22 @@ export default function BookingsAdminPage() {
             <button
               onClick={() => {
                 const csv = [
-                  ['Email', 'Home Location', 'Destination', 'Status', 'Booked'],
-                  ...filteredBookings.map(booking => [
-                    booking.email,
-                    getSchoolDisplayName(booking.homeLocation),
-                    getSchoolDisplayName(booking.destination),
-                    booking.status,
-                    formatDate(booking.createdAt),
-                  ]),
+                  ['Name', 'Email', 'Route', 'Round Trip', 'Last Minute', 'Referred By', 'Luggage', 'Status', 'Booked'],
+                  ...filteredBookings.map(booking => {
+                    const r = getBookingRoute(booking)
+                    const [from, to] = r ? r.split('-') : ['', '']
+                    return [
+                      booking.name || 'N/A',
+                      booking.email,
+                      r ? `${getSchoolDisplayName(from)} → ${getSchoolDisplayName(to)}` : 'N/A',
+                      booking.roundTrip ? 'Yes' : 'No',
+                      booking.lastMinuteFee ? 'Yes' : 'No',
+                      booking.referrerName || 'N/A',
+                      booking.addLuggage ? 'Yes' : 'No',
+                      booking.status,
+                      formatDate(booking.createdAt),
+                    ]
+                  }),
                 ]
                   .map(row => row.map(cell => `"${cell}"`).join(','))
                   .join('\n')

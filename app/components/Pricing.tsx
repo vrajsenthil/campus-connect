@@ -83,6 +83,12 @@ export default function Pricing() {
                 or other transportation options, UniLink keeps your money where it belongs—in your wallet.
               </p>
             </div>
+
+            <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <p className="text-sm text-gray-600 text-center">
+                <strong>Last-minute booking fee:</strong> A $5 fee applies when you book between 1 and 5 days before the departure date. Book in advance to avoid this fee.
+              </p>
+            </div>
           </div>
         </div>
       </div>

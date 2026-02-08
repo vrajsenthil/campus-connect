@@ -82,6 +82,7 @@ export default function WaitlistForm() {
 
       if (!response.ok) {
         console.error('API Error:', data)
+        // Show the specific error message from the API
         setErrorMessage(data.error || 'Failed to join waitlist. Please try again.')
         setStatus('error')
         return
@@ -100,7 +101,12 @@ export default function WaitlistForm() {
       }, 5000)
     } catch (error) {
       console.error('Error submitting form:', error)
-      setErrorMessage('Something went wrong. Please try again later.')
+      // More specific error handling
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setErrorMessage('Network error. Please check your connection and try again.')
+      } else {
+        setErrorMessage('Something went wrong. Please try again later.')
+      }
       setStatus('error')
     }
   }

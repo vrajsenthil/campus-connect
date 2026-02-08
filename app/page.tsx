@@ -19,6 +19,11 @@ export default function Home() {
           <div className="text-center">
             <p className="text-xl font-bold text-white mb-2">UniLink</p>
             <p className="text-sm mb-4 text-gray-400">Connecting students across college campuses</p>
+            <p className="text-sm mb-2">
+              <a href="/terms" className="text-blue-400 hover:text-blue-300">Terms of Service</a>
+              {' · '}
+              <a href="/booking" className="text-blue-400 hover:text-blue-300">Book Now</a>
+            </p>
             <p className="text-xs text-gray-500">
               © {new Date().getFullYear()} UniLink. All rights reserved.
             </p>

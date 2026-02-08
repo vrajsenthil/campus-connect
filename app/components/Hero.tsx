@@ -30,10 +30,16 @@ export default function Hero() {
             Connect with friends across college campuses. Affordable bus service connecting 
             <span className="font-semibold text-white"> UIUC, IU, and Purdue</span> for students like you.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+            <a
+              href="/booking"
+              className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+            >
+              Book Now
+            </a>
             <button
               onClick={handleScrollToForm}
-              className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+              className="px-8 py-4 bg-white/10 text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-colors"
             >
               Join the Waitlist
             </button>

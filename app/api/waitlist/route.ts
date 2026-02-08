@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'redis'
-import { sendWelcomeEmail } from '@/lib/email'
 
 const WAITLIST_KEY = 'waitlist:entries'
 
@@ -88,7 +87,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Read existing entries
-    const entries = await getEntries()
+    let entries
+    try {
+      entries = await getEntries()
+    } catch (error) {
+      console.error('Error reading entries:', error)
+      return NextResponse.json(
+        { error: 'Failed to read waitlist. Please try again.' },
+        { status: 500 }
+      )
+    }
 
     // Check if email already exists
     const existingEntry = entries.find((entry: any) => entry.email.toLowerCase() === email.toLowerCase())
@@ -112,11 +120,20 @@ export async function POST(request: NextRequest) {
 
     entries.push(newEntry)
 
-    // Save to KV
-    await saveEntries(entries)
+    // Save to Redis
+    try {
+      await saveEntries(entries)
+    } catch (error) {
+      console.error('Error saving entries:', error)
+      return NextResponse.json(
+        { error: 'Failed to save to waitlist. Please try again.' },
+        { status: 500 }
+      )
+    }
 
     // Send welcome email (don't block on email errors)
     try {
+      const { sendWelcomeEmail } = await import('@/lib/email')
       await sendWelcomeEmail(email, school, destination)
       console.log(`Welcome email sent to ${email}`)
     } catch (emailError) {
@@ -131,6 +148,22 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error adding to waitlist:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    
+    // Provide more specific error messages
+    if (errorMessage.includes('REDIS_URL')) {
+      return NextResponse.json(
+        { error: 'Server configuration error. Please contact support.' },
+        { status: 500 }
+      )
+    }
+    
+    if (errorMessage.includes('connect') || errorMessage.includes('Redis')) {
+      return NextResponse.json(
+        { error: 'Unable to connect to database. Please try again later.' },
+        { status: 500 }
+      )
+    }
+    
     return NextResponse.json(
       { error: `Failed to add to waitlist: ${errorMessage}` },
       { status: 500 }
