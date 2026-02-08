@@ -7,10 +7,12 @@ interface Booking {
   id: string
   name?: string
   email: string
+  phone?: string | null
   homeLocation?: string
   destination?: string
   route?: string
   roundTrip?: boolean
+  returnOnly?: boolean
   lastMinuteFee?: boolean
   referrerName?: string | null
   addLuggage?: boolean
@@ -272,10 +274,13 @@ export default function BookingsAdminPage() {
                       Email
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Route
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Round Trip
+                      Trip type
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Last Min.
@@ -310,6 +315,9 @@ export default function BookingsAdminPage() {
                         {booking.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {booking.phone || '—'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
                           const r = getBookingRoute(booking)
                           if (!r) return '—'
@@ -324,7 +332,7 @@ export default function BookingsAdminPage() {
                         })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {booking.roundTrip ? 'Yes' : 'No'}
+                        {booking.returnOnly ? 'Return only' : booking.roundTrip ? 'Round trip' : 'One-way'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {booking.lastMinuteFee ? 'Yes' : 'No'}
@@ -391,15 +399,17 @@ export default function BookingsAdminPage() {
             <button
               onClick={() => {
                 const csv = [
-                  ['Name', 'Email', 'Route', 'Round Trip', 'Last Minute', 'Referred By', 'Luggage', 'Status', 'Booked'],
+                  ['Name', 'Email', 'Phone', 'Route', 'Trip type', 'Last Minute', 'Referred By', 'Luggage', 'Status', 'Booked'],
                   ...filteredBookings.map(booking => {
                     const r = getBookingRoute(booking)
                     const [from, to] = r ? r.split('-') : ['', '']
+                    const tripType = booking.returnOnly ? 'Return only' : booking.roundTrip ? 'Round trip' : 'One-way'
                     return [
                       booking.name || 'N/A',
                       booking.email,
+                      booking.phone || 'N/A',
                       r ? `${getSchoolDisplayName(from)} → ${getSchoolDisplayName(to)}` : 'N/A',
-                      booking.roundTrip ? 'Yes' : 'No',
+                      tripType,
                       booking.lastMinuteFee ? 'Yes' : 'No',
                       booking.referrerName || 'N/A',
                       booking.addLuggage ? 'Yes' : 'No',

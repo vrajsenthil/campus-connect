@@ -11,10 +11,12 @@ function BookingSuccessContent() {
   const [booking, setBooking] = useState<{
     name?: string
     email?: string
+    phone?: string | null
     homeLocation?: string
     destination?: string
     route?: string
     roundTrip?: boolean
+    returnOnly?: boolean
     addLuggage?: boolean
     tripDeparture?: string
     tripReturn?: string
@@ -102,7 +104,10 @@ function BookingSuccessContent() {
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 md:p-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Booking Confirmed</h1>
           <p className="text-gray-600 mb-6">
-            Thank you for booking with UniLink. Arrive at least 10 minutes before 6:00 PM on March 6.
+            Thank you for booking with UniLink.{' '}
+            {booking?.returnOnly
+              ? 'Arrive at least 10 minutes before 6:00 PM on March 8 (return departure).'
+              : 'Arrive at least 10 minutes before 6:00 PM on March 6.'}
           </p>
 
           {booking && (
@@ -113,14 +118,21 @@ function BookingSuccessContent() {
               {booking.email && (
                 <p><strong>Email:</strong> {booking.email}</p>
               )}
+              {booking.phone && (
+                <p><strong>Phone:</strong> {booking.phone}</p>
+              )}
               {routeLabel && (
                 <p><strong>Route:</strong> {routeLabel}</p>
               )}
-              {booking.roundTrip && (
-                <p><strong>Trip type:</strong> Round trip</p>
+              <p><strong>Trip type:</strong> {booking.returnOnly ? 'Return only' : booking.roundTrip ? 'Round trip' : 'One-way'}</p>
+              {booking.returnOnly ? (
+                <p><strong>Departure:</strong> March 8, 2025 at 6:00 PM (return leg)</p>
+              ) : (
+                <>
+                  <p><strong>Departure:</strong> March 6, 2025 at 6:00 PM</p>
+                  <p><strong>Return:</strong> March 8, 2025 at 6:00 PM</p>
+                </>
               )}
-              <p><strong>Departure:</strong> March 6, 2025 at 6:00 PM</p>
-              <p><strong>Return:</strong> March 8, 2025 at 6:00 PM</p>
               {booking.addLuggage && (
                 <p><strong>Luggage:</strong> Carry-on included</p>
               )}

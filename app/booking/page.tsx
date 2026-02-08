@@ -6,13 +6,14 @@ import Link from 'next/link'
 const TRIP_DEPARTURE = 'March 6, 2025 at 6:00 PM'
 const TRIP_RETURN = 'March 8, 2025 at 6:00 PM'
 const DEPARTURE_DATE = new Date('2025-03-06') // March 6, 2025
-const ROUND_TRIP_PRICE = 60 // Only route: Purdue → UIUC round trip
+const ONE_WAY_PRICE = 30
+const ROUND_TRIP_PRICE = 60 // $30 × 2
 const LUGGAGE_PRICE = 7.5
 const LAST_MINUTE_FEE = 5
 const LAST_MINUTE_DAYS = 5
 
 const ROUTE_VALUE = 'purdue-uiuc' as const
-const ROUTE_LABEL = 'Purdue → UIUC (Round Trip)'
+const ROUTE_LABEL = 'Purdue → UIUC'
 
 function isWithinLastMinuteWindow(): boolean {
   const now = new Date()
@@ -24,9 +25,13 @@ function isWithinLastMinuteWindow(): boolean {
   return daysUntil >= 1 && daysUntil <= LAST_MINUTE_DAYS
 }
 
+type TripType = 'one-way' | 'round-trip' | 'return-only'
+
 export default function BookingPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [tripType, setTripType] = useState<TripType>('round-trip')
   const [referrerName, setReferrerName] = useState('')
   const [addLuggage, setAddLuggage] = useState(false)
   const [acceptTerms, setAcceptTerms] = useState(false)
@@ -35,9 +40,11 @@ export default function BookingPage() {
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   const lastMinute = isWithinLastMinuteWindow()
-
+  const baseFare = tripType === 'round-trip' ? ROUND_TRIP_PRICE : ONE_WAY_PRICE
   const subtotal =
-    ROUND_TRIP_PRICE + (addLuggage ? LUGGAGE_PRICE : 0) + (lastMinute ? LAST_MINUTE_FEE : 0)
+    baseFare + (addLuggage ? LUGGAGE_PRICE : 0) + (lastMinute ? LAST_MINUTE_FEE : 0)
+  const roundTrip = tripType === 'round-trip'
+  const returnOnly = tripType === 'return-only'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,8 +80,10 @@ export default function BookingPage() {
         body: JSON.stringify({
           name: name.trim(),
           email,
+          phone: phone.trim() || undefined,
           route: ROUTE_VALUE,
-          roundTrip: true,
+          roundTrip,
+          returnOnly,
           referrerName: referrerName.trim() || undefined,
           addLuggage,
         }),
@@ -151,12 +160,69 @@ export default function BookingPage() {
               />
             </div>
 
+            <div>
+              <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
+                Phone <span className="text-gray-500 font-normal">(Optional)</span>
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(555) 123-4567"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                disabled={status === 'loading'}
+              />
+            </div>
+
             <div className="rounded-xl border-2 border-slate-200 bg-slate-50 p-4">
               <div className="text-sm font-semibold text-gray-600 mb-1">Route</div>
               <div className="text-lg font-bold text-gray-900">{ROUTE_LABEL}</div>
               <p className="mt-1 text-sm text-gray-600">
-                Depart March 6, 6:00 PM; return March 8, 6:00 PM. <strong>$30 × 2</strong>
+                {tripType === 'round-trip'
+                  ? 'Depart March 6, 6:00 PM; return March 8, 6:00 PM. $30 × 2'
+                  : tripType === 'return-only'
+                    ? 'Return March 8, 6:00 PM only. $30'
+                    : 'Depart March 6, 6:00 PM only. $30'}
               </p>
+              <div className="mt-4 flex flex-wrap gap-4 sm:gap-6">
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="radio"
+                    name="tripType"
+                    checked={tripType === 'one-way'}
+                    onChange={() => setTripType('one-way')}
+                    className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    disabled={status === 'loading'}
+                  />
+                  <span className="font-medium text-gray-900">One-way</span>
+                  <span className="text-gray-600">$30</span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="radio"
+                    name="tripType"
+                    checked={tripType === 'round-trip'}
+                    onChange={() => setTripType('round-trip')}
+                    className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    disabled={status === 'loading'}
+                  />
+                  <span className="font-medium text-gray-900">Round trip</span>
+                  <span className="text-gray-600">$60 ($30 × 2)</span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="radio"
+                    name="tripType"
+                    checked={tripType === 'return-only'}
+                    onChange={() => setTripType('return-only')}
+                    className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    disabled={status === 'loading'}
+                  />
+                  <span className="font-medium text-gray-900">Return only</span>
+                  <span className="text-gray-600">$30</span>
+                </label>
+              </div>
             </div>
 
             <div>
@@ -193,8 +259,15 @@ export default function BookingPage() {
 
             <div className="border-t border-gray-200 pt-4 space-y-2">
               <div className="flex justify-between text-gray-700">
-                <span>Purdue → UIUC round trip</span>
-                <span>$30 × 2</span>
+                <span>
+                  Purdue → UIUC{' '}
+                  {tripType === 'round-trip'
+                    ? 'round trip'
+                    : tripType === 'return-only'
+                      ? 'return only'
+                      : 'one-way'}
+                </span>
+                <span>{tripType === 'round-trip' ? '$30 × 2' : '$30.00'}</span>
               </div>
               {addLuggage && (
                 <div className="flex justify-between text-gray-700">

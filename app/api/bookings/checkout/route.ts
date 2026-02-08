@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const ROUND_TRIP_PRICE_CENTS = 6000 // $60 — only route: Purdue → UIUC round trip
+const ONE_WAY_PRICE_CENTS = 3000 // $30
+const ROUND_TRIP_PRICE_CENTS = 6000 // $60 — Purdue → UIUC
 const LUGGAGE_PRICE_CENTS = 750 // $7.50
 const LAST_MINUTE_FEE_CENTS = 500 // $5
 const DEPARTURE_DATE = new Date('2025-03-06')
@@ -39,8 +40,10 @@ export async function POST(request: NextRequest) {
 
     const stripe = new Stripe(stripeSecretKey)
     const body = await request.json()
-    const { name, email, route, referrerName, addLuggage } = body
+    const { name, email, phone, route, roundTrip, returnOnly, referrerName, addLuggage } = body
     const effectiveRoute = route || ONLY_ROUTE
+    const isRoundTrip = roundTrip === true
+    const isReturnOnly = returnOnly === true
 
     if (!name?.trim() || !email?.trim()) {
       return NextResponse.json(
@@ -52,7 +55,7 @@ export async function POST(request: NextRequest) {
     const parsed = parseRoute(effectiveRoute)
     if (!parsed) {
       return NextResponse.json(
-        { error: 'Invalid route. Only Purdue → UIUC round trip is available.' },
+        { error: 'Invalid route. Only Purdue → UIUC is available.' },
         { status: 400 }
       )
     }
@@ -68,16 +71,27 @@ export async function POST(request: NextRequest) {
     }
 
     const lastMinute = isWithinLastMinuteWindow()
+    const baseCents = isRoundTrip ? ROUND_TRIP_PRICE_CENTS : ONE_WAY_PRICE_CENTS
+    const productName = isReturnOnly
+      ? 'UniLink Purdue → UIUC Return Only Bus Ticket'
+      : isRoundTrip
+        ? 'UniLink Purdue → UIUC Round Trip Bus Ticket'
+        : 'UniLink Purdue → UIUC One-Way Bus Ticket'
+    const productDesc = isReturnOnly
+      ? `March 8, 6:00 PM. Purdue to UIUC return only. Arrive 10 minutes before 6:00 PM departure.`
+      : isRoundTrip
+        ? `March 6, 6:00 PM – March 8, 6:00 PM. Purdue to UIUC round trip. Arrive 10 minutes before 6:00 PM departure.`
+        : `March 6, 6:00 PM. Purdue to UIUC one-way. Arrive 10 minutes before 6:00 PM departure.`
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: 'UniLink Purdue → UIUC Round Trip Bus Ticket',
-            description: `March 6, 6:00 PM – March 8, 6:00 PM. Purdue to UIUC round trip. Arrive 10 minutes before 6:00 PM departure.`,
+            name: productName,
+            description: productDesc,
             images: [],
           },
-          unit_amount: ROUND_TRIP_PRICE_CENTS,
+          unit_amount: baseCents,
         },
         quantity: 1,
       },
@@ -124,10 +138,12 @@ export async function POST(request: NextRequest) {
       metadata: {
         name: name.trim(),
         email: email.toLowerCase(),
+        phone: (phone && String(phone).trim()) || '',
         route: effectiveRoute,
         homeLocation,
         destination,
-        roundTrip: 'true',
+        roundTrip: isRoundTrip ? 'true' : 'false',
+        returnOnly: isReturnOnly ? 'true' : 'false',
         referrerName: referrerName?.trim() || '',
         addLuggage: addLuggage ? 'true' : 'false',
         lastMinute: lastMinute ? 'true' : 'false',
