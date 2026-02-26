@@ -5,29 +5,26 @@ import Link from 'next/link'
 
 const TRIP_DEPARTURE = 'March 6, 2025 at 6:00 PM'
 const TRIP_RETURN = 'March 8, 2025 at 6:00 PM'
-const DEPARTURE_DATE = new Date('2025-03-06') // March 6, 2025
 const ONE_WAY_PRICE = 30
 const ROUND_TRIP_PRICE = 60 // $30 × 2
 const LUGGAGE_PRICE = 7.5
 const LAST_MINUTE_FEE = 5
-const LAST_MINUTE_DAYS = 5
 
 const ROUTE_VALUE = 'purdue-uiuc' as const
 const ROUTE_LABEL_TWO_WAY = 'Purdue ↔ UIUC'
 
+const DEPARTURE_DATETIME = new Date('2025-03-06T18:00:00') // March 6, 6:00 PM local
+const LAST_MINUTE_WINDOW_MS = 24 * 60 * 60 * 1000 // 24 hours
+
 function isWithinLastMinuteWindow(): boolean {
   const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  const departure = new Date(DEPARTURE_DATE)
-  departure.setHours(0, 0, 0, 0)
-  const daysUntil = (departure.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  // Only apply last-minute fee when booking is 1–5 days before March 6 (not on departure day or earlier)
-  return daysUntil >= 1 && daysUntil <= LAST_MINUTE_DAYS
+  const cutoff = new Date(DEPARTURE_DATETIME.getTime() - LAST_MINUTE_WINDOW_MS)
+  return now >= cutoff && now < DEPARTURE_DATETIME
 }
 
 type TripType = 'one-way' | 'round-trip' | 'return-only'
 
-const TICKET_LIMIT = 55
+const TICKET_LIMIT = 35
 
 export default function BookingPage() {
   const [name, setName] = useState('')
@@ -312,7 +309,7 @@ export default function BookingPage() {
               )}
               {lastMinute && (
                 <div className="flex justify-between text-gray-700">
-                  <span>Last-minute booking (within 5 days of departure)</span>
+                  <span>Late fee (booked within 24 hours of departure)</span>
                   <span>${LAST_MINUTE_FEE.toFixed(2)}</span>
                 </div>
               )}
@@ -320,7 +317,7 @@ export default function BookingPage() {
 
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
               <p className="text-sm text-amber-900">
-                <strong>Last-minute booking fee:</strong> A $5 fee applies when you book between 1 and 5 days before the departure date (March 6, 2025). Book earlier to avoid this fee.
+                <strong>24-hour late fee:</strong> A $5 fee applies when you book within 24 hours of the March 6, 6:00 PM departure. Book earlier to avoid this fee.
               </p>
             </div>
 

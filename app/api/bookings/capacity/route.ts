@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from 'redis'
 
 const BOOKINGS_KEY = 'bookings:entries'
-const TICKET_LIMIT = 55
+const TICKET_LIMIT = 35
 
 let redisClient: ReturnType<typeof createClient> | null = null
 

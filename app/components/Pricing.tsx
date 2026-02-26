@@ -86,7 +86,7 @@ export default function Pricing() {
 
             <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
               <p className="text-sm text-gray-600 text-center">
-                <strong>Last-minute booking fee:</strong> A $5 fee applies when you book between 1 and 5 days before the departure date. Book in advance to avoid this fee.
+                <strong>24-hour late fee:</strong> A $5 fee applies when you book within 24 hours of the departure. Book earlier to avoid this fee.
               </p>
             </div>
           </div>

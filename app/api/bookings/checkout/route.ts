@@ -5,8 +5,8 @@ const ONE_WAY_PRICE_CENTS = 3000 // $30
 const ROUND_TRIP_PRICE_CENTS = 6000 // $60 — Purdue → UIUC
 const LUGGAGE_PRICE_CENTS = 750 // $7.50
 const LAST_MINUTE_FEE_CENTS = 500 // $5
-const DEPARTURE_DATE = new Date('2025-03-06')
-const LAST_MINUTE_DAYS = 5
+const DEPARTURE_DATETIME = new Date('2025-03-06T18:00:00') // March 6, 6:00 PM local
+const LAST_MINUTE_WINDOW_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 const ONLY_ROUTE = 'purdue-uiuc' as const
 
@@ -17,15 +17,11 @@ function parseRoute(route: string): { homeLocation: string; destination: string 
 
 function isWithinLastMinuteWindow(): boolean {
   const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  const departure = new Date(DEPARTURE_DATE)
-  departure.setHours(0, 0, 0, 0)
-  const daysUntil = (departure.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  // Only apply last-minute fee when booking is 1–5 days before March 6 (not on departure day or earlier)
-  return daysUntil >= 1 && daysUntil <= LAST_MINUTE_DAYS
+  const cutoff = new Date(DEPARTURE_DATETIME.getTime() - LAST_MINUTE_WINDOW_MS)
+  return now >= cutoff && now < DEPARTURE_DATETIME
 }
 
-const TICKET_LIMIT = 55
+const TICKET_LIMIT = 35
 
 export async function POST(request: NextRequest) {
   try {
@@ -133,8 +129,8 @@ export async function POST(request: NextRequest) {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: 'Last-minute booking fee',
-            description: 'Booking within 5 days of departure (March 6, 2025)',
+            name: '24-hour late fee',
+            description: 'Late fee applied because booking was made within 24 hours of March 6, 6:00 PM departure',
             images: [],
           },
           unit_amount: LAST_MINUTE_FEE_CENTS,
