@@ -5,8 +5,8 @@ import Link from 'next/link'
 
 const TRIP_DEPARTURE = 'March 6, 2025 at 6:00 PM'
 const TRIP_RETURN = 'March 8, 2025 at 6:00 PM'
-const ONE_WAY_PRICE = 30
-const ROUND_TRIP_PRICE = 60 // $30 × 2
+const ONE_WAY_PRICE = 12.5
+const ROUND_TRIP_PRICE = 25 // Flash sale: round trip $25
 const LUGGAGE_PRICE = 7.5
 const LAST_MINUTE_FEE = 5
 
@@ -211,10 +211,10 @@ export default function BookingPage() {
               <div className="text-lg font-bold text-gray-900">{ROUTE_LABEL_TWO_WAY}</div>
               <p className="mt-1 text-sm text-gray-600">
                 {tripType === 'round-trip'
-                  ? 'Depart March 6, 6:00 PM; return March 8, 6:00 PM. $30 × 2'
+                  ? 'Depart March 6, 6:00 PM; return March 8, 6:00 PM. Flash sale: $25 round trip'
                   : tripType === 'return-only'
-                    ? 'Return March 8, 6:00 PM only. $30'
-                    : 'Depart March 6, 6:00 PM only. $30'}
+                    ? 'Return March 8, 6:00 PM only. $12.50'
+                    : 'Depart March 6, 6:00 PM only. $12.50'}
               </p>
               <div className="mt-4 flex flex-wrap gap-4 sm:gap-6">
                 <label className="flex cursor-pointer items-center gap-2">
@@ -227,7 +227,7 @@ export default function BookingPage() {
                     disabled={status === 'loading'}
                   />
                   <span className="font-medium text-gray-900">One-way</span>
-                  <span className="text-gray-600">$30</span>
+                  <span className="text-gray-600">$12.50</span>
                 </label>
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
@@ -239,7 +239,7 @@ export default function BookingPage() {
                     disabled={status === 'loading'}
                   />
                   <span className="font-medium text-gray-900">Round trip</span>
-                  <span className="text-gray-600">$60 ($30 × 2)</span>
+                  <span className="text-gray-600">$25</span>
                 </label>
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
@@ -251,7 +251,7 @@ export default function BookingPage() {
                     disabled={status === 'loading'}
                   />
                   <span className="font-medium text-gray-900">Return only</span>
-                  <span className="text-gray-600">$30</span>
+                  <span className="text-gray-600">$12.50</span>
                 </label>
               </div>
             </div>
@@ -299,7 +299,7 @@ export default function BookingPage() {
                     <>Purdue ↔ UIUC <span className="text-gray-500 font-medium">round trip</span></>
                   )}
                 </span>
-                <span>{tripType === 'round-trip' ? '$30 × 2' : '$30.00'}</span>
+                <span>{tripType === 'round-trip' ? '$25.00' : '$12.50'}</span>
               </div>
               {addLuggage && (
                 <div className="flex justify-between text-gray-700">

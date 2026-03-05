@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const ONE_WAY_PRICE_CENTS = 3000 // $30
-const ROUND_TRIP_PRICE_CENTS = 6000 // $60 — Purdue → UIUC
+const ONE_WAY_PRICE_CENTS = 1250 // $12.50
+const ROUND_TRIP_PRICE_CENTS = 2500 // $25 — Flash sale round trip
 const LUGGAGE_PRICE_CENTS = 750 // $7.50
 const LAST_MINUTE_FEE_CENTS = 500 // $5
 const DEPARTURE_DATETIME = new Date('2025-03-06T18:00:00') // March 6, 6:00 PM local

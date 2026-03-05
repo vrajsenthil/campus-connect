@@ -14,15 +14,15 @@ export default function Pricing() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border border-gray-200">
             <div className="text-center mb-8">
-              <div className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                Launch Pricing
+              <div className="inline-block bg-amber-100 text-amber-900 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                Flash sale
               </div>
               <div className="mb-6">
-                <div className="text-2xl md:text-3xl text-gray-600 mb-2">Starting at</div>
-                <span className="text-5xl md:text-6xl font-bold text-gray-900">$30</span>
+                <div className="text-2xl md:text-3xl text-gray-600 mb-2">Round trip</div>
+                <span className="text-5xl md:text-6xl font-bold text-gray-900">$25</span>
               </div>
-              <p className="text-xl text-gray-700 mb-2">per one-way trip</p>
-              <p className="text-gray-500">Prices vary by route and demand</p>
+              <p className="text-xl text-gray-700 mb-2">Purdue ↔ UIUC · March 6–8</p>
+              <p className="text-gray-500">One-way $12.50 · Limited time</p>
             </div>
 
             <div className="border-t border-gray-200 pt-8">
